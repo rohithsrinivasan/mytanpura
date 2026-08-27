@@ -3,10 +3,9 @@ name: Android
 on:
   push:
     branches: [main, master]
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
-  release:
-    types: [published]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -42,6 +41,10 @@ jobs:
     name: Test and build
     runs-on: ubuntu-latest
     timeout-minutes: 30
+
+    # Needed by the tag-triggered release step at the end of this job.
+    permissions:
+      contents: write
 
     # Secrets cannot be read from a step-level `if`, so the presence check is
     # hoisted into a job-level env var.
@@ -142,8 +145,16 @@ jobs:
           path: app/build/outputs/bundle/release/*.aab
           if-no-files-found: error
 
-      - name: Attach APK to the GitHub release
-        if: github.event_name == 'release'
+      # Pushing a version tag publishes a GitHub Release with the APK attached.
+      # Release assets are downloadable without a GitHub account, unlike the
+      # workflow artifacts above - so this is how you share a build.
+      #
+      #   git tag v1.0.0 && git push origin v1.0.0
+      - name: Publish a release with the APK
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: app/build/outputs/apk/release/*.apk
+          files: |
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/bundle/release/*.aab
+          generate_release_notes: true

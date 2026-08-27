@@ -52,8 +52,12 @@ resonances and suggested Sa, and each is trimmable from the Tone panel.
 ## How the sound is made
 
 The tanpura that ships with the app is **synthesised, not sampled**. Nothing is
-recorded, so the APK is about 5 MB, it is perfectly in tune at any pitch, and it
-never loops.
+recorded: there is not one byte of audio in the APK, it is perfectly in tune at
+any pitch, and it never loops.
+
+(The APK is about 13 MB all the same - that is Compose plus the extended Material
+icon set, not audio. Enabling R8 in `app/build.gradle.kts` would cut most of it;
+it is off by default here to keep the first build predictable.)
 
 Each string is an extended Karplus-Strong waveguide: a delay line with a one-pole
 loop filter, and three things on top that make it a tanpura rather than a generic
