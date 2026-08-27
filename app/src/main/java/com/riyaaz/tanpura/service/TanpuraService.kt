@@ -104,17 +104,20 @@ class TanpuraService : Service() {
         controller = (application as TanpuraApplication).controller
         createChannel()
 
-        session = MediaSessionCompat(this, "TanpuraSession").apply {
-            setCallback(object : MediaSessionCompat.Callback() {
-                override fun onPlay() = controller.play()
-                override fun onPause() = controller.pause()
-                override fun onStop() {
-                    controller.stop()
-                    stopEverything()
-                }
-            })
-            isActive = true
-        }
+        // Deliberately not `MediaSessionCompat(...).apply { ... }`: inside that
+        // block `controller` would resolve to MediaSessionCompat.getController(),
+        // which is a MediaControllerCompat and shadows this service's field.
+        val mediaSession = MediaSessionCompat(this, "TanpuraSession")
+        mediaSession.setCallback(object : MediaSessionCompat.Callback() {
+            override fun onPlay() = controller.play()
+            override fun onPause() = controller.pause()
+            override fun onStop() {
+                controller.stop()
+                stopEverything()
+            }
+        })
+        mediaSession.isActive = true
+        session = mediaSession
 
         // Collapsed to just what is displayed, and de-duplicated: otherwise every
         // frame of a volume-slider drag would post a new notification.
