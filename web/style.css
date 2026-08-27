@@ -1,0 +1,914 @@
+/*
+ * Tanpura — one stylesheet, two layouts.
+ *
+ * Phone (default): a single column that behaves like a native app. Instrument and
+ * transport pinned at the top, controls scrolling below, tab bar at the bottom
+ * where a thumb reaches.
+ *
+ * Laptop (>= 900px): a two-column desktop layout. The instrument and transport
+ * stay permanently visible on the left while the controls scroll independently on
+ * the right, tabs move up into the header, and the bottom bar disappears. Nothing
+ * is hidden on either — the same controls, arranged for the input device.
+ */
+
+:root {
+  --bg: #120e0b;
+  --surface: #1c1611;
+  --surface-high: #261e17;
+  --surface-variant: #2e241b;
+  --brass: #e8b04b;
+  --brass-dim: #b8873a;
+  --wood-dark: #3a2717;
+  --text: #efe5d6;
+  --text-muted: #b4a48b;
+  --outline: #4a3b2c;
+  --danger: #e5654b;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+body {
+  /* Warm pool of light behind the instrument. */
+  background-image: radial-gradient(120% 60% at 50% 12%, #1d1610 0%, var(--bg) 62%);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-height: 100dvh;
+  padding-top: var(--safe-top);
+}
+
+/* --------------------------------------------------------------- topbar --- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px 6px;
+  flex: 0 0 auto;
+}
+
+.brand {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.topbar-tabs {
+  display: none;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.topbar-tab {
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.topbar-tab:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.topbar-tab.is-on {
+  background: var(--wood-dark);
+  color: var(--brass);
+}
+
+/* ---------------------------------------------------------------- stage --- */
+
+.stage {
+  flex: 0 0 auto;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.pitch-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.sa-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 150px;
+}
+
+.sa-note {
+  font-size: clamp(38px, 11vw, 52px);
+  font-weight: 300;
+  line-height: 1.05;
+  color: var(--brass);
+  font-variant-numeric: tabular-nums;
+}
+
+.sa-detail {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 26px;
+  color: var(--text-muted);
+  display: grid;
+  place-items: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.icon-btn:hover {
+  background: var(--surface);
+  color: var(--brass);
+}
+
+/* Scrolling strip of every available Sa. */
+.pitch-strip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 8px 0 10px;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+}
+
+.pitch-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.pitch-cell {
+  flex: 0 0 auto;
+  width: 52px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-variant);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  scroll-snap-align: center;
+  transition: background 0.12s, color 0.12s, box-shadow 0.12s;
+}
+
+.pitch-cell.is-on {
+  background: var(--wood-dark);
+  color: var(--brass);
+  box-shadow: inset 0 0 0 1.5px var(--brass);
+}
+
+.instrument {
+  display: block;
+  width: 100%;
+  /* Scales with the viewport so the stage never crowds out the controls. */
+  height: clamp(150px, 26vh, 260px);
+  flex: 0 0 auto;
+}
+
+.transport {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0 14px;
+  /* Must not shrink: the play button is a fixed circle and would spill out. */
+  flex: 0 0 auto;
+}
+
+.play-btn {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, var(--brass), var(--brass-dim));
+  display: grid;
+  place-items: center;
+  box-shadow: 0 8px 24px rgba(232, 176, 75, 0.22);
+  transition: transform 0.12s, box-shadow 0.2s;
+  flex: 0 0 auto;
+}
+
+.play-btn:active {
+  transform: scale(0.94);
+}
+
+/* Triangle when paused, two bars when playing — drawn, so no icon font. */
+.play-icon {
+  width: 26px;
+  height: 28px;
+  background: #241703;
+  clip-path: polygon(6% 0%, 100% 50%, 6% 100%);
+  margin-left: 5px;
+  transition: clip-path 0.15s;
+}
+
+/*
+ * Two bars for pause. A single clip-path polygon cannot describe two disjoint
+ * rectangles - it joins them into an X - so the gap is cut with a gradient
+ * instead.
+ */
+.play-btn.is-playing .play-icon {
+  clip-path: none;
+  width: 24px;
+  margin-left: 0;
+  background: linear-gradient(
+    90deg,
+    #241703 0 34%,
+    transparent 34% 66%,
+    #241703 66% 100%
+  );
+}
+
+.pill {
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--outline);
+  font-size: 13px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.15s, box-shadow 0.15s;
+}
+
+.pill.is-on {
+  color: var(--brass);
+  box-shadow: inset 0 0 0 1.5px var(--brass);
+}
+
+/* ---------------------------------------------------------------- panel --- */
+
+.panel {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title {
+  flex: 1;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.card-toggle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 18px;
+  color: var(--text-muted);
+  display: grid;
+  place-items: center;
+}
+
+.card-toggle:hover {
+  background: var(--surface-variant);
+  color: var(--brass);
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 10px;
+}
+
+/*
+ * An author `display: flex` beats the user-agent `[hidden] { display: none }`,
+ * so without this the collapsible cards showed a "+" and their contents at the
+ * same time.
+ */
+.card-body[hidden] {
+  display: none;
+}
+
+.hint {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.row > * {
+  flex: 1;
+}
+
+/* --------------------------------------------------------------- slider --- */
+
+.slider-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.slider-head > span:first-child {
+  flex: 1;
+}
+
+.slider-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brass);
+  font-variant-numeric: tabular-nums;
+}
+
+.slider.is-disabled {
+  opacity: 0.4;
+}
+
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 30px;
+  background: transparent;
+  margin: 0;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--outline);
+}
+
+input[type='range']::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--outline);
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -8px;
+  border-radius: 50%;
+  background: var(--brass);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: var(--brass);
+}
+
+/* ---------------------------------------------------------------- chips --- */
+
+.chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.chips::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex: 0 0 auto;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--text-muted);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--outline);
+  white-space: nowrap;
+  transition: color 0.12s, background 0.12s, box-shadow 0.12s;
+}
+
+.chip:hover {
+  color: var(--text);
+}
+
+.chip.is-on {
+  background: var(--wood-dark);
+  color: var(--brass);
+  box-shadow: inset 0 0 0 1.5px var(--brass);
+}
+
+/* -------------------------------------------------------------- buttons --- */
+
+.btn {
+  padding: 11px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  transition: filter 0.15s, background 0.15s;
+}
+
+.btn-primary {
+  background: var(--brass);
+  color: #241703;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.08);
+}
+
+.btn-ghost {
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--outline);
+}
+
+.btn-ghost:hover {
+  background: var(--surface-variant);
+}
+
+.btn-full {
+  width: 100%;
+}
+
+/* --------------------------------------------------- toggles and radios --- */
+
+.toggle-row,
+.source-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.toggle-row > span:first-child,
+.source-row > span:last-child {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggle-row strong,
+.source-row strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.toggle-row small,
+.source-row small {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 46px;
+  height: 28px;
+}
+
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.switch-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--surface-variant);
+  box-shadow: inset 0 0 0 1px var(--outline);
+  transition: background 0.18s;
+  pointer-events: none;
+}
+
+.switch-track::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: transform 0.18s, background 0.18s;
+}
+
+.switch input:checked + .switch-track {
+  background: var(--wood-dark);
+}
+
+.switch input:checked + .switch-track::after {
+  transform: translateX(18px);
+  background: var(--brass);
+}
+
+.source-row input[type='radio'] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--brass);
+  flex: 0 0 auto;
+}
+
+/* ----------------------------------------------------------- tone grid --- */
+
+.tone-readout {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.tone-readout.is-on {
+  color: var(--brass);
+  font-weight: 600;
+}
+
+.tone-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.tone-cell {
+  height: 58px;
+  border-radius: 12px;
+  background: var(--surface-variant);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  transition: background 0.12s, box-shadow 0.12s;
+}
+
+.tone-cell strong {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.tone-cell small {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.tone-cell.is-on {
+  background: var(--wood-dark);
+  box-shadow: inset 0 0 0 1.5px var(--brass);
+}
+
+.tone-cell.is-on strong {
+  color: var(--brass);
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------- tabbar --- */
+
+.tabbar {
+  flex: 0 0 auto;
+  display: flex;
+  background: var(--surface);
+  padding-bottom: var(--safe-bottom);
+  border-top: 1px solid rgba(74, 59, 44, 0.5);
+}
+
+.tab {
+  flex: 1;
+  padding: 9px 0 11px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+
+.tab-icon {
+  font-size: 17px;
+  line-height: 1;
+}
+
+.tab.is-on {
+  color: var(--brass);
+}
+
+/* --------------------------------------------------------------- modals --- */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.62);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 40;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.modal.is-in {
+  opacity: 1;
+}
+
+.modal-sheet {
+  width: 100%;
+  max-width: 560px;
+  max-height: 86vh;
+  overflow-y: auto;
+  background: var(--surface-high);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 14px 20px calc(24px + var(--safe-bottom));
+  transform: translateY(14px);
+  transition: transform 0.22s;
+}
+
+.modal.is-in .modal-sheet {
+  transform: translateY(0);
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.modal-head h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 19px;
+  font-weight: 500;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.text-input {
+  width: 100%;
+  padding: 11px 13px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--outline);
+  font: inherit;
+  font-size: 14px;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: var(--brass);
+}
+
+.preset-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.preset-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-top: 1px solid rgba(74, 59, 44, 0.4);
+}
+
+.preset-apply {
+  flex: 1;
+  text-align: left;
+  padding: 11px 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.preset-apply:hover {
+  background: var(--surface-variant);
+}
+
+.preset-apply strong {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.preset-apply small {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------- toasts --- */
+
+.toast-host {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(84px + var(--safe-bottom));
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--surface-high);
+  color: var(--text);
+  padding: 11px 18px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5), inset 0 0 0 1px var(--outline);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s, transform 0.25s;
+  max-width: 90vw;
+  text-align: center;
+}
+
+.toast.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ============================================================== laptop === */
+
+@media (min-width: 900px) {
+  #app {
+    display: grid;
+    grid-template-columns: minmax(380px, 42%) 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: 8px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .topbar {
+    grid-column: 1 / -1;
+    padding: 16px 28px 10px;
+  }
+
+  .topbar-tabs {
+    display: flex;
+  }
+
+  .stage {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 0 12px 28px 28px;
+    overflow-y: auto;
+    justify-content: center;
+  }
+
+  .panel {
+    grid-column: 2;
+    grid-row: 2;
+    padding: 0 28px 28px 12px;
+  }
+
+  .tabbar {
+    display: none;
+  }
+
+  /* More room on a laptop, so the instrument gets to be the centrepiece. */
+  .instrument {
+    height: min(46vh, 420px);
+  }
+
+  .sa-note {
+    font-size: 60px;
+  }
+
+  .sa-detail {
+    font-size: 13px;
+  }
+
+  .transport {
+    justify-content: center;
+    gap: 28px;
+  }
+
+  .play-btn {
+    width: 86px;
+    height: 86px;
+  }
+
+  /* Two columns of controls once there is width for them. */
+  .panel {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-content: start;
+  }
+
+  .toast-host {
+    bottom: 28px;
+  }
+
+  .modal {
+    align-items: center;
+  }
+
+  .modal-sheet {
+    border-radius: var(--radius);
+    padding-bottom: 24px;
+  }
+}
+
+@media (min-width: 1280px) {
+  #app {
+    grid-template-columns: minmax(420px, 38%) 1fr;
+  }
+
+  .panel {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+
+  /* The two widest cards read better full-width. */
+  .panel > .card:nth-child(2) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

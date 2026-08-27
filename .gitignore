@@ -1,0 +1,25 @@
+*.iml
+.gradle/
+local.properties
+keystore.properties
+*.jks
+*.keystore
+.idea/
+.DS_Store
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+
+# Offline verification harness: downloaded jars and compiler output.
+tools/verify/libs/
+tools/verify/out/
+tools/verify/out-android/
+
+# Browser-check harness: installed deps and captured screenshots.
+tools/webcheck/node_modules/
+tools/webcheck/shots/
+tools/webcheck/package-lock.json
+node_modules/

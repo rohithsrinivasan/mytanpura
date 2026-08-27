@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tanpura</string>
+    <string name="notif_channel_name">Tanpura playback</string>
+    <string name="notif_channel_desc">Keeps the tanpura playing in the background</string>
+    <string name="action_play">Play</string>
+    <string name="action_pause">Pause</string>
+    <string name="action_stop">Stop</string>
+</resources>

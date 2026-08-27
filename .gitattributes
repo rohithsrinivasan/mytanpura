@@ -1,0 +1,17 @@
+# Normalise line endings in the repository to LF.
+#
+# This matters for gradlew: the GitHub Actions runner is Linux, and a shell
+# script checked in with CRLF fails there with "bad interpreter".
+* text=auto eol=lf
+
+# Windows-only scripts keep CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Never touch binaries.
+*.jar binary
+*.png binary
+*.jpg binary
+*.webp binary
+*.keystore binary
+*.jks binary

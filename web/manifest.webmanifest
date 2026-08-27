@@ -1,0 +1,37 @@
+{
+  "name": "Tanpura — a drone for riyaaz",
+  "short_name": "Tanpura",
+  "description": "A tanpura for Indian classical practice. Pick your Sa, pick the first-string tuning your raga wants, and let it run.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#120e0b",
+  "theme_color": "#120e0b",
+  "categories": ["music", "education", "utilities"],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

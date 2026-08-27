@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"
+    />
+    <title>Tanpura — a drone for riyaaz</title>
+    <meta
+      name="description"
+      content="A tanpura for Indian classical practice. Pick your Sa, pick the first-string tuning your raga wants, and let it run. Physically modelled strings, in tune at any pitch."
+    />
+    <meta name="theme-color" content="#120e0b" />
+    <meta name="color-scheme" content="dark" />
+
+    <!-- Installable as an app on Android and iOS. -->
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Tanpura" />
+
+    <meta property="og:title" content="Tanpura — a drone for riyaaz" />
+    <meta
+      property="og:description"
+      content="Physically modelled tanpura. Any Sa, ten first-string tunings, four instrument voices."
+    />
+    <meta property="og:type" content="website" />
+
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <noscript>
+      <p style="padding: 2rem; color: #efe5d6; font: 16px system-ui">
+        This tanpura synthesises its sound in your browser, so it needs JavaScript enabled.
+      </p>
+    </noscript>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
